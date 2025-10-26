@@ -8,6 +8,7 @@ jobs:
     - name: Checkout code
       run: |
        git clone https://github.com/zeynab-gh/setion2.git
+       mv Session-2{*,}
      
     - name: Install Python and pip
       run: sudo apt-get update && sudo apt-get install -y python3 python3-pip
