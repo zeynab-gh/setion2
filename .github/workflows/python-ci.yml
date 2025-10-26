@@ -1,25 +1,52 @@
-name: Python CI
+name: Advanced Python CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  test:
+  code-quality:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v4
+    
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
-
+    
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pytest
         pip install -r requirements.txt
-
+        pip install flake8 black isort mypy bandit safety pytest
+        
+    - name: Check syntax errors
+      run: |
+        python -m py_compile **/*.py
+        
+    - name: Check code formatting
+      run: |
+        black --check --verbose .
+        
+    - name: Check imports order
+      run: |
+        isort --check-only --diff .
+        
+    - name: Lint code
+      run: |
+        flake8 . --count --statistics --max-complexity=10 --max-line-length=88
+        
+    - name: Static type checking
+      run: |
+        mypy . --ignore-missing-imports
+        
+    - name: Security lint
+      run: |
+        bandit -r . -f html -o bandit_report.html || true
+        
+    - name: Check vulnerabilities
+      run: |
+        safety check --json || true
+        
     - name: Run tests
-      run: pytest test.py
+      run: |
+        pytest test.py -v --cov-report=html
