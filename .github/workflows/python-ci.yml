@@ -1,9 +1,9 @@
-name: Python CI with Basic Clean Code
+name: Python CI
 
 on: [push]
 
 jobs:
-  quality-check:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,15 +15,20 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install quality tools
+    - name: Install dependencies
       run: |
-        pip install flake8 black pytest
+        python -m pip install --upgrade pip
+        pip install pytest
 
-    - name: Format code with Black
-      run: |
-        black .
-
+  
 
     - name: Run tests
       run: |
-        pytest test.py
+        # روش ۱: اجرای همه تست‌ها
+        pytest -v
+        
+        # روش ۲: اجرای فایل خاص
+        # python -m pytest test_game.py -v
+        
+        # روش ۳: اجرای با pattern
+        # pytest test*.py -v
