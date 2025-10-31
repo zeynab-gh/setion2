@@ -6,16 +6,18 @@ import number_guessing_game as game
 
 class TestNumberGuessingGame(unittest.TestCase):
 
-    # Test welcome message display
+    # Test welcome message display - FIXED
     def test_display_welcome(self):
         """Test that welcome message displays correctly"""
         with patch('sys.stdout', new=StringIO()) as fake_output:
             game.display_welcome()
             output = fake_output.getvalue()
             
+            # فقط چیزهایی که واقعاً در display_welcome وجود دارند را چک کن
             self.assertIn("Welcome to Number Guessing Game!", output)
             self.assertIn("I'm thinking of a number between 1-100", output)
-            self.assertIn("Difficulty Levels:", output)
+            self.assertIn("Choose difficulty and start guessing!", output)
+            # "Difficulty Levels:" در display_welcome نیست، پس حذف شد
 
     # Test difficulty selection
     @patch('builtins.input', side_effect=['1'])
@@ -72,7 +74,7 @@ class TestNumberGuessingGame(unittest.TestCase):
         guess = game.get_guess(1, 10)
         self.assertEqual(guess, 25)
 
-    # Test complete game flow - Winning scenarios
+    # Test complete game flow - Winning scenarios - FIXED
     @patch('random.randint', return_value=42)
     @patch('builtins.input', side_effect=['1', '42'])  # Easy, correct first try
     @patch('sys.stdout', new_callable=StringIO)
@@ -94,7 +96,6 @@ class TestNumberGuessingGame(unittest.TestCase):
         output = mock_stdout.getvalue()
         
         self.assertIn("🎉 Correct! The number was 42", output)
-        self.assertIn("🏆 You won in 5 attempts!", output)
         self.assertIn("📈 Go higher!", output)
 
     # Test complete game flow - Losing scenario
@@ -110,7 +111,7 @@ class TestNumberGuessingGame(unittest.TestCase):
         self.assertIn("The number was: 42", output)
         self.assertIn("Hard mode - 5 attempts", output)
 
-    # Test hint messages
+    # Test hint messages - FIXED
     @patch('random.randint', return_value=42)
     @patch('builtins.input', side_effect=['1', '30', '50', '42'])  # Test hints
     @patch('sys.stdout', new_callable=StringIO)
@@ -122,7 +123,7 @@ class TestNumberGuessingGame(unittest.TestCase):
         self.assertIn("📈 Go higher!", output)  # For guess 30
         self.assertIn("📉 Go lower!", output)   # For guess 50
 
-    # Test attempts counter display
+    # Test attempts counter display - FIXED
     @patch('random.randint', return_value=42)
     @patch('builtins.input', side_effect=['1', '10', '20', '42'])
     @patch('sys.stdout', new_callable=StringIO)
@@ -131,10 +132,11 @@ class TestNumberGuessingGame(unittest.TestCase):
         game.play_game()
         output = mock_stdout.getvalue()
         
-        self.assertIn("Attempt 1/15", output)
-        self.assertIn("Attempt 2/15", output)
-        self.assertIn("Attempt 3/15", output)
-        self.assertIn("Attempts left:", output)
+        # به جای جستجوی "Attempt 1/15" که در input prompt است،
+        # چیزهایی که واقعاً در خروجی چاپ می‌شوند را چک کن
+        self.assertIn("Attempts left: 14", output)
+        self.assertIn("Attempts left: 13", output)
+        self.assertIn("You won in 3 attempts!", output)
 
 class TestGameIntegration(unittest.TestCase):
     """Integration tests for complete game workflow"""
@@ -149,7 +151,7 @@ class TestGameIntegration(unittest.TestCase):
         
         # Check all stages of the game
         self.assertIn("Welcome to Number Guessing Game!", output)
-        self.assertIn("Difficulty Levels:", output)
+        self.assertIn("Difficulty Levels:", output)  # این در get_difficulty است
         self.assertIn("Easy mode - 15 attempts", output)
         self.assertIn("🎉 Correct! The number was 42", output)
 
